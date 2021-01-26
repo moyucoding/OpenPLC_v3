@@ -4,7 +4,7 @@ import socket
 import errno
 import time
 from threading import Thread
-from Queue import Queue, Empty
+import queue as Queue
 
 intervals = (
     ('weeks', 604800),  # 60 * 60 * 24 * 7
@@ -84,7 +84,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('quit()\n')
+                s.send('quit()\n'.encode())
                 data = s.recv(1000)
                 s.close()
                 self.runtime_status = "Stopped"
@@ -125,7 +125,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('exec_time()\n')
+                s.send('exec_time()\n'.encode())
                 data = s.recv(10000)
                 s.close()
                 self.runtime_status = "Running"
@@ -140,7 +140,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('start_modbus(' + str(port_num) + ')\n')
+                s.send('start_modbus(' + str(port_num) + ')\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -151,7 +151,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('stop_modbus()\n')
+                s.send('stop_modbus()\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -162,7 +162,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('start_dnp3(' + str(port_num) + ')\n')
+                s.send('start_dnp3(' + str(port_num) + ')\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -173,7 +173,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('stop_dnp3()\n')
+                s.send('stop_dnp3()\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -184,7 +184,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('start_enip(' + str(port_num) + ')\n')
+                s.send('start_enip(' + str(port_num) + ')\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -195,7 +195,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('stop_enip()\n')
+                s.send('stop_enip()\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -206,7 +206,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('start_pstorage(' + str(poll_rate) + ')\n')
+                s.send('start_pstorage(' + str(poll_rate) + ')\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -217,7 +217,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('stop_pstorage()\n')
+                s.send('stop_pstorage()\n'.encode())
                 data = s.recv(1000)
                 s.close()
             except:
@@ -228,7 +228,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('runtime_logs()\n')
+                s.send('runtime_logs()\n'.encode())
                 data = s.recv(1000000)
                 s.close()
                 return data
@@ -244,7 +244,7 @@ class runtime:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.connect(('localhost', 43628))
-                s.send('exec_time()\n')
+                s.send('exec_time()\n'.encode())
                 data = s.recv(10000)
                 s.close()
                 return display_time(int(data), 4)
