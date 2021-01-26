@@ -25,15 +25,15 @@ function linux_install_deps {
     $1 apt-get install -y build-essential pkg-config bison flex autoconf \
                           automake libtool make git python2.7 \
                           sqlite3 cmake git curl
-    curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
-    $1 python2.7 get-pip.py
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    $1 python3 get-pip.py
 }
 
 function install_py_deps {
-    $1 pip2 install flask
-    $1 pip2 install flask-login
-    $1 pip2 install pyserial
-    $1 pip2 install pymodbus
+    $1 pip3 install flask
+    $1 pip3 install flask-login
+    $1 pip3 install pyserial
+    $1 pip3 install pymodbus
 }
 
 function install_all_libs {
@@ -149,11 +149,11 @@ if [ "$1" == "win" ]; then
     apt-cyg remove gcc-core gcc-g++ pkg-config automake autoconf libtool make python2 python2-pip sqlite3
     apt-cyg install wget gcc-core gcc-g++ git pkg-config automake autoconf libtool make python2 python2-pip sqlite3
     lynx -source https://bootstrap.pypa.io/get-pip.py > get-pip.py
-    python get-pip.py
-    pip install flask
-    pip install flask-login
-    pip install pyserial
-    pip install pymodbus
+    python3 get-pip.py
+    pip3 install flask
+    pip3 install flask-login
+    pip3 install pyserial
+    pip3 install pymodbus
 
     echo ""
     echo "[MATIEC COMPILER]"
