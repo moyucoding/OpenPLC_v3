@@ -30,6 +30,12 @@
 #define _IEC_STD_LIB_H
 
 
+#include <sys/types.h>  
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+
 #include <limits.h>
 #include <float.h>
 #include <math.h>
@@ -279,10 +285,10 @@ typedef struct {
 	int tm_day;			/* Day.		[1-31] */
 	int tm_mon;			/* Month.	[0-11] */
 	int tm_year;			/* Year	*/
-} tm;
+} struct_tm;
 
-static inline tm convert_seconds_to_date_and_time(long int seconds) {
-  tm dt;
+static inline struct_tm convert_seconds_to_date_and_time(long int seconds) {
+  struct_tm dt;
   long int days, rem;
   days = seconds / SECONDS_PER_DAY;
   rem = seconds % SECONDS_PER_DAY;
@@ -606,7 +612,7 @@ static inline STRING __time_to_string(TIME IN){
 }
 static inline STRING __date_to_string(DATE IN){
     STRING res;
-    tm broken_down_time;
+    struct_tm broken_down_time;
     /* D#1984-06-25 */
     broken_down_time = convert_seconds_to_date_and_time(IN.tv_sec);
     res = __INIT_STRING;
@@ -619,7 +625,7 @@ static inline STRING __date_to_string(DATE IN){
 }
 static inline STRING __tod_to_string(TOD IN){
     STRING res;
-    tm broken_down_time;
+    struct_tm broken_down_time;
     time_t seconds;
     /* TOD#15:36:55.36 */
     seconds = IN.tv_sec;
@@ -645,7 +651,7 @@ static inline STRING __tod_to_string(TOD IN){
 }
 static inline STRING __dt_to_string(DT IN){
     STRING res;
-    tm broken_down_time;
+    struct_tm broken_down_time;
     /* DT#1984-06-25-15:36:55.36 */
     broken_down_time = convert_seconds_to_date_and_time(IN.tv_sec);
     if(IN.tv_nsec == 0){
