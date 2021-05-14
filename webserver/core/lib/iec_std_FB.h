@@ -2117,7 +2117,7 @@ static void GETCURJOINT_body__(GETCURJOINT *data__) {
         
         //Get joint          
         p1 = strchr(buf, ';');
-        char word[100] = {};.body
+        char word[100] = {};
         strncpy(word, buf + 1, p1 - buf - 1);
         char *p_word = word;
         //Set result
