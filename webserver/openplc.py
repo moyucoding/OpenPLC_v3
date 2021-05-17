@@ -4,7 +4,7 @@ import socket
 import errno
 import time
 from threading import Thread
-import Queue import Queue, Empty
+from Queue import Queue, Empty
 
 intervals = (
     ('weeks', 604800),  # 60 * 60 * 24 * 7
