@@ -26,14 +26,14 @@ function linux_install_deps {
                           automake libtool make git python2.7 \
                           sqlite3 cmake git curl
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    $1 python3 get-pip.py
+    $1 pytho3 get-pip.py
 }
 
 function install_py_deps {
-    $1 pip3 install flask
-    $1 pip3 install flask-login
-    $1 pip3 install pyserial
-    $1 pip3 install pymodbus
+    $1 pip install flask
+    $1 pip install flask-login
+    $1 pip install pyserial
+    $1 pip install pymodbus
 }
 
 function install_all_libs {
