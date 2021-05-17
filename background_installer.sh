@@ -26,7 +26,7 @@ function linux_install_deps {
                           automake libtool make git python2.7 \
                           sqlite3 cmake git curl
     curl https://bootstrap.pypa.io/2.7/get-pip.py -o get-pip.py
-     $1 python2.get-pip.py
+     $1 python2.7 get-pip.py
 }
 
 function install_py_deps {
@@ -150,10 +150,10 @@ if [ "$1" == "win" ]; then
     apt-cyg install wget gcc-core gcc-g++ git pkg-config automake autoconf libtool make python2 python2-pip sqlite3
     lynx -source https://bootstrap.pypa.io/get-pip.py > get-pip.py
     python get-pip.py
-    pip2 install flask
-    pip2 install flask-login
-    pip2 install pyserial
-    pip2 install pymodbus
+    pip install flask
+    pip install flask-login
+    pip install pyserial
+    pip install pymodbus
 
     echo ""
     echo "[MATIEC COMPILER]"
