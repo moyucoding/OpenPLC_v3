@@ -15,7 +15,7 @@ import ctypes
 
 import flask 
 import flask_login
-import imp
+
 app = flask.Flask(__name__)
 app.secret_key = str(os.urandom(16))
 login_manager = flask_login.LoginManager()
@@ -2315,7 +2315,8 @@ if __name__ == '__main__':
     st_file = file.read()
     st_file = st_file.replace('\r','').replace('\n','')
     
-    imp.reload(sys)
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
     
     database = "openplc.db"
     conn = create_connection(database)
