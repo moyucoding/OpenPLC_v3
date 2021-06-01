@@ -607,6 +607,8 @@ typedef struct {
   __DECLARE_VAR(BOOL,VALID)
   __DECLARE_VAR(BOOL,ERROR)
   __DECLARE_VAR(SINT,ERRORCODE)
+  // FB private variables - TEMP, private and located variables
+  __DECLARE_VAR(SINT,WAIT)
 } MOVEABSJOINT;
 // FUNCTION_BLOCK MOVEJOINT
 // Data part
@@ -623,6 +625,8 @@ typedef struct {
   __DECLARE_VAR(BOOL,VALID)
   __DECLARE_VAR(BOOL,ERROR)
   __DECLARE_VAR(SINT,ERRORCODE)
+  // FB private variables - TEMP, private and located variables
+  __DECLARE_VAR(SINT,WAIT)
 } MOVEJOINT;
 // FUNCTION_BLOCK MOVELINEAR
 // Data part
@@ -639,6 +643,8 @@ typedef struct {
   __DECLARE_VAR(BOOL,VALID)
   __DECLARE_VAR(BOOL,ERROR)
   __DECLARE_VAR(SINT,ERRORCODE)
+  // FB private variables - TEMP, private and located variables
+  __DECLARE_VAR(SINT,WAIT)
 } MOVELINEAR;
 // FUNCTION_BLOCK MOVECIRCLE
 // Data part
@@ -658,7 +664,7 @@ typedef struct {
   __DECLARE_VAR(BOOL,ERROR)
   __DECLARE_VAR(SINT,ERRORCODE)
   // FB private variables - TEMP, private and located variables
-  __DECLARE_VAR(BOOL,SENT)
+  __DECLARE_VAR(SINT,WAIT)
 } MOVECIRCLE;
 // FUNCTION_BLOCK MOVEJOGJOINT
 // Data part
@@ -2231,7 +2237,7 @@ static void GETCURJOINT_body__(GETCURJOINT *data__) {
       char *p_word = word;
       //Set result
       IEC_STRING joint_str = {strlen(word), ""};
-      strcpy((char*)joint_str.body, p_word);
+      strcpy(joint_str.body, p_word);
       SetFbVar(JOINT, joint_str);
       
       //Get extjoint
@@ -2241,7 +2247,7 @@ static void GETCURJOINT_body__(GETCURJOINT *data__) {
       p_word = word;
       //Set result
       IEC_STRING extjoint_str = {strlen(word), ""};
-      strcpy((char*)extjoint_str.body, p_word);
+      strcpy(extjoint_str.body, p_word);
       SetFbVar(EXTJOINT, extjoint_str);
     }
   }
@@ -2324,28 +2330,29 @@ static void MOVEABSJOINT_init__(MOVEABSJOINT *data__, BOOL retain) {
   __INIT_VAR(data__->VALID,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERROR,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERRORCODE,0,retain)
+  __INIT_VAR(data__->WAIT,0,retain)
 }
 // Code part
 static void MOVEABSJOINT_body__(MOVEABSJOINT *data__) {
 
-  SetFbVar(VALID, false);
-  SetFbVar(ERROR, false);
-  SetFbVar(ERRORCODE, 0);
-
+  int wait = GetFbVar(WAIT);
   bool enable = GetFbVar(ENABLE);
   int fd = open("/tmp/MoveAbsJoint.pipe",O_RDWR | O_NONBLOCK);
-  if(enable){
+  if(wait==0 && enable){
+    SetFbVar(WAIT, 1);
+  }
+  else if(wait == 1){
     char buf[400] = {"MoveAbsJoint;"};
     //JOINT
-    char *word = (char*)GetFbVar(JOINT).body;
+    char *word = GetFbVar(JOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = (char*)GetFbVar(EXTJOINT).body;
+    word = GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = (char*)GetFbVar(LOAD).body;
+    word = GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2359,23 +2366,36 @@ static void MOVEABSJOINT_body__(MOVEABSJOINT *data__) {
     strcat(buf,word);
     strcat(buf,";");
     
-    write(fd, buf, 400);
+    int ret = write(fd, buf, 400);
+    if(ret > 0){
+      SetFbVar(WAIT, 2);
+    }
   }
-
-  char buf[400];
-  int ret = read(fd, buf, 400);
-  if(ret>0){
-    if(buf[0]=='n'){
-      //ERROR
-      SetFbVar(ERROR, true);
-      //1-digit error id
-      SetFbVar(ERRORCODE, buf[1] - 48);
+  else if(wait == 2){
+    char buf[400];
+    int ret = read(fd, buf, 400);
+    if(ret>0){
+      if(buf[0]=='n'){
+        //ERROR
+        SetFbVar(ERROR, true);
+        //1-digit error id
+        SetFbVar(ERRORCODE, buf[1] - 48);
+      }
+      else if(buf[0] == 'y'){
+        SetFbVar(VALID, true);
+      }
+      SetFbVar(WAIT, 3);
     }
-    else if(buf[0] == 'y'){
-      SetFbVar(VALID, true);
-    }
+  }
+  else if((wait == 3) && !enable){
+    
+    SetFbVar(VALID, false);
+    SetFbVar(ERROR, false);
+    SetFbVar(ERRORCODE, 0);
+    SetFbVar(WAIT, 0);
   }
   close(fd);
+  
   goto __end;
   __end:
   return;
@@ -2394,28 +2414,29 @@ static void MOVEJOINT_init__(MOVEJOINT *data__, BOOL retain) {
   __INIT_VAR(data__->VALID,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERROR,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERRORCODE,0,retain)
+  __INIT_VAR(data__->WAIT,0,retain)
 }
 // Code part
 static void MOVEJOINT_body__(MOVEJOINT *data__) {
 
-  SetFbVar(VALID, false);
-  SetFbVar(ERROR, false);
-  SetFbVar(ERRORCODE, 0);
-
+  int wait = GetFbVar(WAIT);
   bool enable = GetFbVar(ENABLE);
   int fd = open("/tmp/MoveJoint.pipe",O_RDWR | O_NONBLOCK);
-  if(enable){
+  if(wait==0 && enable){
+    SetFbVar(WAIT, 1);
+  }
+  else if(wait == 1){
     char buf[400] = {"MoveJoint;"};
     //TOPOINT
-    char *word = (char*)GetFbVar(TOPOINT).body;
+    char *word = GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = (char*)GetFbVar(EXTJOINT).body;
+    word = GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = (char*)GetFbVar(LOAD).body;
+    word = GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2429,22 +2450,36 @@ static void MOVEJOINT_body__(MOVEJOINT *data__) {
     strcat(buf,word);
     strcat(buf,";");
     
-    write(fd, buf, 400);
+    int ret = write(fd, buf, 400);
+    if(ret > 0){
+      SetFbVar(WAIT, 2);
+    }
   }
-  char buf[400];
-  int ret = read(fd, buf, 400);
-  if(ret>0){
-    if(buf[0]=='n'){
-      //ERROR
-      SetFbVar(ERROR, true);
-      //1-digit error id
-      SetFbVar(ERRORCODE, buf[1] - 48);
+  else if(wait == 2){
+    char buf[400];
+    int ret = read(fd, buf, 400);
+    if(ret>0){
+      if(buf[0]=='n'){
+        //ERROR
+        SetFbVar(ERROR, true);
+        //1-digit error id
+        SetFbVar(ERRORCODE, buf[1] - 48);
+      }
+      else if(buf[0] == 'y'){
+        SetFbVar(VALID, true);
+      }
+      SetFbVar(WAIT, 3);
     }
-    else if(buf[0] == 'y'){
-      SetFbVar(VALID, true);
-    }
+  }
+  else if((wait == 3) && !enable){
+    
+    SetFbVar(VALID, false);
+    SetFbVar(ERROR, false);
+    SetFbVar(ERRORCODE, 0);
+    SetFbVar(WAIT, 0);
   }
   close(fd);
+  
   goto __end;
   __end:
   return;
@@ -2463,28 +2498,29 @@ static void MOVELINEAR_init__(MOVELINEAR *data__, BOOL retain) {
   __INIT_VAR(data__->VALID,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERROR,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERRORCODE,0,retain)
+  __INIT_VAR(data__->WAIT,0,retain)
 }
 // Code part
 static void MOVELINEAR_body__(MOVELINEAR *data__) {
 
-  SetFbVar(VALID, false);
-  SetFbVar(ERROR, false);
-  SetFbVar(ERRORCODE, 0);
-
+  int wait = GetFbVar(WAIT);
   bool enable = GetFbVar(ENABLE);
   int fd = open("/tmp/MoveLinear.pipe",O_RDWR | O_NONBLOCK);
-  if(enable){
+  if(wait==0 && enable){
+    SetFbVar(WAIT, 1);
+  }
+  else if(wait == 1){
     char buf[400] = {"MoveLinear;"};
     //TOPOINT
-    char *word = (char*)GetFbVar(TOPOINT).body;
+    char *word = GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = (char*)GetFbVar(EXTJOINT).body;
+    word = GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = (char*)GetFbVar(LOAD).body;
+    word = GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2498,22 +2534,36 @@ static void MOVELINEAR_body__(MOVELINEAR *data__) {
     strcat(buf,word);
     strcat(buf,";");
     
-    write(fd, buf, 400);
+    int ret = write(fd, buf, 400);
+    if(ret > 0){
+      SetFbVar(WAIT, 2);
+    }
   }
-  char buf[400];
-  int ret = read(fd, buf, 400);
-  if(ret>0){
-    if(buf[0]=='n'){
-      //ERROR
-      SetFbVar(ERROR, true);
-      //1-digit error id
-      SetFbVar(ERRORCODE, buf[1] - 48);
+  else if(wait == 2){
+    char buf[400];
+    int ret = read(fd, buf, 400);
+    if(ret>0){
+      if(buf[0]=='n'){
+        //ERROR
+        SetFbVar(ERROR, true);
+        //1-digit error id
+        SetFbVar(ERRORCODE, buf[1] - 48);
+      }
+      else if(buf[0] == 'y'){
+        SetFbVar(VALID, true);
+      }
+      SetFbVar(WAIT, 3);
     }
-    else if(buf[0] == 'y'){
-      SetFbVar(VALID, true);
-    }
+  }
+  else if((wait == 3) && !enable){
+    
+    SetFbVar(VALID, false);
+    SetFbVar(ERROR, false);
+    SetFbVar(ERRORCODE, 0);
+    SetFbVar(WAIT, 0);
   }
   close(fd);
+  
   goto __end;
   __end:
   return;
@@ -2534,35 +2584,36 @@ static void MOVECIRCLE_init__(MOVECIRCLE *data__, BOOL retain) {
   __INIT_VAR(data__->VALID,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERROR,__BOOL_LITERAL(FALSE),retain)
   __INIT_VAR(data__->ERRORCODE,0,retain)
+  __INIT_VAR(data__->WAIT,0,retain)
 }
 // Code part
 static void MOVECIRCLE_body__(MOVECIRCLE *data__) {
-  SetFbVar(VALID, false);
-  SetFbVar(ERROR, false);
-  SetFbVar(ERRORCODE, 0);
-
+  int wait = GetFbVar(WAIT);
   bool enable = GetFbVar(ENABLE);
   int fd = open("/tmp/MoveCircle.pipe",O_RDWR | O_NONBLOCK);
-  if(enable){
+  if(wait==0 && enable){
+    SetFbVar(WAIT, 1);
+  }
+  else if(wait == 1){
     char buf[500] = {"MoveCircle;"};
     //POINT
     char *word = GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = (char*)GetFbVar(EXTJOINT).body;
+    word = GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //VIAPOINT
-    word = (char*)GetFbVar(VIAPOINT).body;
+    word = GetFbVar(VIAPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //VIAEXTJOINT
-    word = (char*)GetFbVar(VIAEXTJOINT).body;
+    word = GetFbVar(VIAEXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = (char*)GetFbVar(LOAD).body;
+    word = GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2576,23 +2627,34 @@ static void MOVECIRCLE_body__(MOVECIRCLE *data__) {
     strcat(buf,word);
     strcat(buf,";");
     
-    write(fd, buf, 500);
-  }
-
-  char buf[500];
-  int ret = read(fd, buf, 500);
-  if(ret>0){
-    if(buf[0]=='n'){
-      //ERROR
-      SetFbVar(ERROR, true);
-      //1-digit error id
-      SetFbVar(ERRORCODE, buf[1] - 48);
-    }
-    else if(buf[0] == 'y'){
-      SetFbVar(VALID, true);
+    int ret = write(fd, buf, 500);
+    if(ret > 0){
+      SetFbVar(WAIT, 2);
     }
   }
-  
+  else if(wait == 2){
+    char buf[500];
+    int ret = read(fd, buf, 500);
+    if(ret>0){
+      if(buf[0]=='n'){
+        //ERROR
+        SetFbVar(ERROR, true);
+        //1-digit error id
+        SetFbVar(ERRORCODE, buf[1] - 48);
+      }
+      else if(buf[0] == 'y'){
+        SetFbVar(VALID, true);
+      }
+      SetFbVar(WAIT, 3);
+    }
+  }
+  else if((wait == 3) && !enable){
+    
+    SetFbVar(VALID, false);
+    SetFbVar(ERROR, false);
+    SetFbVar(ERRORCODE, 0);
+    SetFbVar(WAIT, 0);
+  }
   close(fd);
 
   goto __end;
@@ -2626,7 +2688,7 @@ static void MOVEJOGJOINT_body__(MOVEJOGJOINT *data__) {
       strcat(buf,";");
       
       //LOAD
-      char *p = (char*)GetFbVar(LOAD).body;
+      char *p = GetFbVar(LOAD).body;
       strcat(buf,p);
       strcat(buf,";");
       
@@ -2671,7 +2733,7 @@ static void MOVEJOGLINEAR_body__(MOVEJOGLINEAR *data__) {
     strcat(buf,";");
     
     //LOAD
-    char *p = (char*)GetFbVar(LOAD).body;
+    char *p = GetFbVar(LOAD).body;
     strcat(buf,p);
     strcat(buf,";");
     
@@ -2716,7 +2778,7 @@ static void MOVEJOGROTATION_body__(MOVEJOGROTATION *data__) {
     strcat(buf,";");
     
     //LOAD
-    char *p = (char*)GetFbVar(LOAD).body;
+    char *p = GetFbVar(LOAD).body;
     strcat(buf,p);
     strcat(buf,";");
     
