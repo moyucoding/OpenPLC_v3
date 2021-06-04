@@ -2248,7 +2248,7 @@ static void GETCURJOINT_body__(GETCURJOINT *data__) {
       char *p_word = word;
       //Set result
       IEC_STRING joint_str = {strlen(word), ""};
-      strcpy(joint_str.body, p_word);
+      strcpy((char*)joint_str.body, p_word);
       SetFbVar(JOINT, joint_str);
       
       //Get extjoint
@@ -2258,7 +2258,7 @@ static void GETCURJOINT_body__(GETCURJOINT *data__) {
       p_word = word;
       //Set result
       IEC_STRING extjoint_str = {strlen(word), ""};
-      strcpy(extjoint_str.body, p_word);
+      strcpy((char*)extjoint_str.body, p_word);
       SetFbVar(EXTJOINT, extjoint_str);
     }
   }
@@ -2355,15 +2355,15 @@ static void MOVEABSJOINT_body__(MOVEABSJOINT *data__) {
   else if(wait == 1){
     char buf[400] = {"MoveAbsJoint;"};
     //JOINT
-    char *word = GetFbVar(JOINT).body;
+    char *word = (char*)GetFbVar(JOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = GetFbVar(EXTJOINT).body;
+    word = (char*)GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = GetFbVar(LOAD).body;
+    word = (char*)GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2439,15 +2439,15 @@ static void MOVEJOINT_body__(MOVEJOINT *data__) {
   else if(wait == 1){
     char buf[400] = {"MoveJoint;"};
     //TOPOINT
-    char *word = GetFbVar(TOPOINT).body;
+    char *word = (char*)GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = GetFbVar(EXTJOINT).body;
+    word = (char*)GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = GetFbVar(LOAD).body;
+    word = (char*)GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2523,15 +2523,15 @@ static void MOVELINEAR_body__(MOVELINEAR *data__) {
   else if(wait == 1){
     char buf[400] = {"MoveLinear;"};
     //TOPOINT
-    char *word = GetFbVar(TOPOINT).body;
+    char *word = (char*)GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = GetFbVar(EXTJOINT).body;
+    word = (char*)GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = GetFbVar(LOAD).body;
+    word = (char*)GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2608,23 +2608,23 @@ static void MOVECIRCLE_body__(MOVECIRCLE *data__) {
   else if(wait == 1){
     char buf[500] = {"MoveCircle;"};
     //POINT
-    char *word = GetFbVar(TOPOINT).body;
+    char *word = (char*)GetFbVar(TOPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //EXTJOINT
-    word = GetFbVar(EXTJOINT).body;
+    word = (char*)GetFbVar(EXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //VIAPOINT
-    word = GetFbVar(VIAPOINT).body;
+    word = (char*)GetFbVar(VIAPOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //VIAEXTJOINT
-    word = GetFbVar(VIAEXTJOINT).body;
+    word = (char*)GetFbVar(VIAEXTJOINT).body;
     strcat(buf,word);
     strcat(buf,";");
     //LOAD
-    word = GetFbVar(LOAD).body;
+    word = (char*)GetFbVar(LOAD).body;
     strcat(buf,word);
     strcat(buf,";");
     //SPEED
@@ -2699,7 +2699,7 @@ static void MOVEJOGJOINT_body__(MOVEJOGJOINT *data__) {
       strcat(buf,";");
       
       //LOAD
-      char *p = GetFbVar(LOAD).body;
+      char *p = (char*)GetFbVar(LOAD).body;
       strcat(buf,p);
       strcat(buf,";");
       
@@ -2744,7 +2744,7 @@ static void MOVEJOGLINEAR_body__(MOVEJOGLINEAR *data__) {
     strcat(buf,";");
     
     //LOAD
-    char *p = GetFbVar(LOAD).body;
+    char *p = (char*)GetFbVar(LOAD).body;
     strcat(buf,p);
     strcat(buf,";");
     
@@ -2789,7 +2789,7 @@ static void MOVEJOGROTATION_body__(MOVEJOGROTATION *data__) {
     strcat(buf,";");
     
     //LOAD
-    char *p = GetFbVar(LOAD).body;
+    char *p = (char*)GetFbVar(LOAD).body;
     strcat(buf,p);
     strcat(buf,";");
     

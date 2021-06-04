@@ -15,3 +15,5 @@ CMakeSettings.json
 webserver/bin
 webserver/build
 obj/
+webserver/.DS_Store
+webserver/core/.DS_Store
